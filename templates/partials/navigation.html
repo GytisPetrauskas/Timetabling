@@ -1,0 +1,38 @@
+<header class="text-readable">
+<nav class="navbar navbar-expand-md navbar-fixed-top main-nav static">
+    <div class="container">
+        <a class="navbar-brand nav-surname" href="/">
+          <div class="logo-image">
+            <img src="{{ url_for('static', filename='/image/logo.jpg') }}" height="100%" width="100%" href="{{url_for('index')}}">
+          </div>
+        </a>
+        <ul class="nav navbar-nav mx-auto">
+            <li class="nav-item"><a class="nav-link brand" href="{{url_for('index')}}">Table Your Time</a></li>
+        </ul>
+        <ul class="nav navbar-na navbar-right">
+            <li class="nav-item">
+              <!-- <button type="button" class="btn btn-sm bg-remove"> -->
+                <a class="nav-link links" href="{{url_for('index')}}">
+                  <i class="glyphicon glyphicon-home glyph" ></i>
+                </a>
+              <!-- </button> -->
+            </li>
+            <li class="nav-item">
+              <!-- <button type="button" class="btn btn-sm bg-remove"> -->
+                <a class="nav-link links" href="{{url_for('timetabling')}}">
+                <i class="glyphicon glyphicon-pencil glyph move-left-5">
+                </i></a>
+              <!-- </button> -->
+            </li>
+              <li class="nav-item">
+              <!-- <button type="button" class="btn btn-sm bg-remove"> -->
+                <a class="nav-link links" href="{{url_for('schedule', category='all', filter_key='all')}}">
+                <i class="glyphicon glyphicon-calendar glyph move-left-5">
+                </i></a>
+              <!-- </button> -->
+            </li>
+        </ul>
+    </div>
+</nav>
+<hr class="seperation">
+</header>

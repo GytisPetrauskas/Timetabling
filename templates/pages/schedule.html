@@ -1,0 +1,1180 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+	<div class="col-md-10 offset-md-1">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+	      		{% if messages %}
+	        		{% for category, message in messages %}
+		        	   <div class="alert alert-{{ category }}" role="alert"> {{ message }}</div>
+		        	   <hr>
+	        		{% endfor %}
+	      		{% endif %}
+	    {% endwith %}
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-1"></div>
+
+	<div class="col-md-10 text-readable padding-bottom">
+		<span class="text-readable center-span block-display"> <!-- style="width: 464px;" -->
+			<button onclick="dropdownFilters()" class="btn button-styling no-border">
+			<span class="glyphicon glyphicon-menu-down">
+			</span>
+			</button>
+			<b>Filter</b>
+		</span>
+		<div id="filters" class="row dont-display">
+			<div class="col-md-3">
+				<h4>Groups</h4>
+				<br>
+				<div class="items">
+					<ul>
+						<li>
+							<b>
+								<a class="filter_button_styling" href="{{ url_for('schedule', category='all', filter_key='all')}}">All</a>
+							</b>
+						</li>
+						{% for i in db_groups %}
+							<li>
+								<a class="filter_button_styling" href="{{ url_for('schedule', category='groups', filter_key=i.group) }}">{{ i.group }}</a>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>	
+			</div>
+			<div class="col-md-3">
+				<h4>Lecturers</h4>
+				<br>
+				<div class="items">
+					<ul>
+						<li>
+							<b>
+								<a class="filter_button_styling" href="{{ url_for('schedule', category='all', filter_key='all')}}">All</a>
+							</b>
+						</li>
+						{% for i in db_lecturers %}
+							<li>
+								<a class="filter_button_styling" href="{{ url_for('schedule', category='lecturers', filter_key=i.lecturer) }}">{{ i.lecturer }}</a>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>	
+			</div>
+			<div class="col-md-3">
+				<h4>Classrooms</h4>
+				<br>
+				<div class="items">
+					<ul>
+						<li>
+							<b>
+								<a class="filter_button_styling" href="{{ url_for('schedule', category='all', filter_key='all')}}">All</a>
+							</b>
+						</li>
+						{% for i in db_classrooms %}
+							<li>
+								<a class="filter_button_styling" href="{{ url_for('schedule', category='classrooms', filter_key=i.classroom) }}">{{ i.classroom }}</a>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>	
+			</div>
+			<div class="col-md-3">
+					<h4>Subjects</h4>
+					<br>
+					<div class="items">
+						<ul>
+							<li>
+								<b>
+									<a class="filter_button_styling" href="{{ url_for('schedule', category='all', filter_key='all')}}">All</a>
+								</b>
+							</li>
+							{% for i in db_subjects %}
+								<li>
+									<a class="filter_button_styling" href="{{ url_for('schedule', category='subjects', filter_key=i.subject) }}">{{ i.subject }}</a>
+								</li>
+							{% endfor %}
+						</ul>
+					</div>	
+				<br>
+				<br>
+			</div>
+		</div>
+		<div class="tab">
+		  	<button class="tablinks" onclick="openTab(event, 'GreedyWelshPowell')">Greedy Welsh-Powell</button>
+		  	<button class="tablinks" onclick="openTab(event, 'DSatur')">DSatur</button>
+		  	<button class="tablinks" onclick="openTab(event, 'RecursiveLargestFirst')">Recursive Largest First</button>
+		  	<button class="tablinks" onclick="openTab(event, 'TabuSearch')">Tabu Search</button>
+		  	<button class="tablinks on-right" onclick="openTab(event, 'Review')">Algorithm review</button>
+		</div>
+		<div id="GreedyWelshPowell" class="tabcontent text-readable">
+			<div class="row padding-top">
+				<table id="scheduleTable" class="schedule">
+					<tr id="tableHeader">
+						<th>---</th>
+						{% if "Monday" in days %}
+							<th>Monday</th>
+						{% endif %}
+						{% if "Tuesday" in days %}
+							<th>Tuesday</th>
+						{% endif %}
+						{% if "Wednesday" in days %}
+							<th>Wednesday</th>
+						{% endif %}
+						{% if "Thursday" in days %}
+							<th>Thursday</th>
+						{% endif %}
+						{% if "Friday" in days %}
+							<th>Friday</th>
+						{% endif %}
+						{% if "Saturday" in days %}
+							<th>Saturday</th>
+						{% endif %}
+						{% if "Sunday" in days %}
+							<th>Sunday</th>
+						{% endif %}
+					</tr>
+					{% for t in range(times | length) %}
+					<tr>
+						<td>{{ times[t] }}</td>
+						{% if "Monday" in days %}
+							<td>
+								{% if schedule[0] != [] %}
+									{% if schedule[0][t] != [] %}
+										{% for i in schedule[0][t] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Tuesday" in days %}
+							<td>
+								{% if schedule[0] != [] %}
+									{% if schedule[0][t+times|length] != [] %}
+										{% for i in schedule[0][t+times|length] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Wednesday" in days %}
+							<td>
+								{% if schedule[0] != [] %}
+									{% if schedule[0][t+(times|length)*2] != [] %}
+										{% for i in schedule[0][t+(times|length)*2] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Thursday" in days %}
+							<td>
+								{% if schedule[0] != [] %}
+									{% if schedule[0][t+(times|length)*3] != [] %}
+										{% for i in schedule[0][t+(times|length)*3] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Friday" in days %}
+							<td>
+								{% if schedule[0] != [] %}
+									{% if schedule[0][t+(times|length)*4] != [] %}
+										{% for i in schedule[0][t+(times|length)*4] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Saturday" in days %}
+							<td>
+								{% if schedule[0] != [] %}
+									{% if schedule[0][t+(times|length)*5] != [] %}
+										{% for i in schedule[0][t+(times|length)*5] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Sunday" in days %}
+							<td>
+								{% if schedule[0] != [] %}
+									{% if schedule[0][t+(times|length)*6] != [] %}
+										{% for i in schedule[0][t+(times|length)*6] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+		<div id="DSatur" class="tabcontent text-readable">
+			<div class="row padding-top">
+				<table id="scheduleTable" class="schedule">
+					<tr id="tableHeader">
+						<th>---</th>
+						{% if "Monday" in days %}
+							<th>Monday</th>
+						{% endif %}
+						{% if "Tuesday" in days %}
+							<th>Tuesday</th>
+						{% endif %}
+						{% if "Wednesday" in days %}
+							<th>Wednesday</th>
+						{% endif %}
+						{% if "Thursday" in days %}
+							<th>Thursday</th>
+						{% endif %}
+						{% if "Friday" in days %}
+							<th>Friday</th>
+						{% endif %}
+						{% if "Saturday" in days %}
+							<th>Saturday</th>
+						{% endif %}
+						{% if "Sunday" in days %}
+							<th>Sunday</th>
+						{% endif %}
+					</tr>
+					{% for t in range(times | length) %}
+					<tr>
+						<td>{{ times[t] }}</td>
+						{% if "Monday" in days %}
+							<td>
+								{% if schedule[1] != [] %}
+									{% if schedule[1][t] != [] %}
+										{% for i in schedule[1][t] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Tuesday" in days %}
+							<td>
+								{% if schedule[1] != [] %}
+									{% if schedule[1][t+times|length] != [] %}
+										{% for i in schedule[1][t+times|length] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Wednesday" in days %}
+							<td>
+								{% if schedule[1] != [] %}
+									{% if schedule[1][t+(times|length)*2] != [] %}
+										{% for i in schedule[1][t+(times|length)*2] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Thursday" in days %}
+							<td>
+								{% if schedule[1] != [] %}
+									{% if schedule[1][t+(times|length)*3] != [] %}
+										{% for i in schedule[1][t+(times|length)*3] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Friday" in days %}
+							<td>
+								{% if schedule[1] != [] %}
+									{% if schedule[1][t+(times|length)*4] != [] %}
+										{% for i in schedule[1][t+(times|length)*4] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Saturday" in days %}
+							<td>
+								{% if schedule[1] != [] %}
+									{% if schedule[1][t+(times|length)*5] != [] %}
+										{% for i in schedule[1][t+(times|length)*5] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Sunday" in days %}
+							<td>
+								{% if schedule[1] != [] %}
+									{% if schedule[1][t+(times|length)*6] != [] %}
+										{% for i in schedule[1][t+(times|length)*6] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+		<div id="RecursiveLargestFirst" class="tabcontent text-readable">
+			<div class="row padding-top">
+				<table id="scheduleTable" class="schedule">
+					<tr id="tableHeader">
+						<th>---</th>
+						{% if "Monday" in days %}
+							<th>Monday</th>
+						{% endif %}
+						{% if "Tuesday" in days %}
+							<th>Tuesday</th>
+						{% endif %}
+						{% if "Wednesday" in days %}
+							<th>Wednesday</th>
+						{% endif %}
+						{% if "Thursday" in days %}
+							<th>Thursday</th>
+						{% endif %}
+						{% if "Friday" in days %}
+							<th>Friday</th>
+						{% endif %}
+						{% if "Saturday" in days %}
+							<th>Saturday</th>
+						{% endif %}
+						{% if "Sunday" in days %}
+							<th>Sunday</th>
+						{% endif %}
+					</tr>
+					{% for t in range(times | length) %}
+					<tr>
+						<td>{{ times[t] }}</td>
+						{% if "Monday" in days %}
+							<td>
+								{% if schedule[2] != [] %}
+									{% if schedule[2][t] != [] %}
+										{% for i in schedule[2][t] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Tuesday" in days %}
+							<td>
+								{% if schedule[2] != [] %}
+									{% if schedule[2][t+times|length] != [] %}
+										{% for i in schedule[2][t+times|length] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Wednesday" in days %}
+							<td>
+								{% if schedule[2] != [] %}
+									{% if schedule[2][t+(times|length)*2] != [] %}
+										{% for i in schedule[2][t+(times|length)*2] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Thursday" in days %}
+							<td>
+								{% if schedule[2] != [] %}
+									{% if schedule[2][t+(times|length)*3] != [] %}
+										{% for i in schedule[2][t+(times|length)*3] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Friday" in days %}
+							<td>
+								{% if schedule[2] != [] %}
+									{% if schedule[2][t+(times|length)*4] != [] %}
+										{% for i in schedule[2][t+(times|length)*4] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Saturday" in days %}
+							<td>
+								{% if schedule[2] != [] %}
+									{% if schedule[2][t+(times|length)*5] != [] %}
+										{% for i in schedule[2][t+(times|length)*5] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Sunday" in days %}
+							<td>
+								{% if schedule[2] != [] %}
+									{% if schedule[2][t+(times|length)*6] != [] %}
+										{% for i in schedule[2][t+(times|length)*6] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+		<div id="TabuSearch" class="tabcontent text-readable">
+			<div class="row padding-top">
+				<table id="scheduleTable" class="schedule">
+					<tr id="tableHeader">
+						<th>---</th>
+						{% if "Monday" in days %}
+							<th>Monday</th>
+						{% endif %}
+						{% if "Tuesday" in days %}
+							<th>Tuesday</th>
+						{% endif %}
+						{% if "Wednesday" in days %}
+							<th>Wednesday</th>
+						{% endif %}
+						{% if "Thursday" in days %}
+							<th>Thursday</th>
+						{% endif %}
+						{% if "Friday" in days %}
+							<th>Friday</th>
+						{% endif %}
+						{% if "Saturday" in days %}
+							<th>Saturday</th>
+						{% endif %}
+						{% if "Sunday" in days %}
+							<th>Sunday</th>
+						{% endif %}
+					</tr>
+					{% for t in range(times | length) %}
+					<tr>
+						<td>{{ times[t] }}</td>
+						{% if "Monday" in days %}
+							<td>
+								{% if schedule[3] != [] %}
+									{% if schedule[3][t] != [] %}
+										{% for i in schedule[3][t] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Tuesday" in days %}
+							<td>
+								{% if schedule[3] != [] %}
+									{% if schedule[3][t+times|length] != [] %}
+										{% for i in schedule[3][t+times|length] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Wednesday" in days %}
+							<td>
+								{% if schedule[3] != [] %}
+									{% if schedule[3][t+(times|length)*2] != [] %}
+										{% for i in schedule[3][t+(times|length)*2] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Thursday" in days %}
+							<td>
+								{% if schedule[3] != [] %}
+									{% if schedule[3][t+(times|length)*3] != [] %}
+										{% for i in schedule[3][t+(times|length)*3] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Friday" in days %}
+							<td>
+								{% if schedule[3] != [] %}
+									{% if schedule[3][t+(times|length)*4] != [] %}
+										{% for i in schedule[3][t+(times|length)*4] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Saturday" in days %}
+							<td>
+								{% if schedule[3] != [] %}
+									{% if schedule[3][t+(times|length)*5] != [] %}
+										{% for i in schedule[3][t+(times|length)*5] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+						{% if "Sunday" in days %}
+							<td>
+								{% if schedule[3] != [] %}
+									{% if schedule[3][t+(times|length)*6] != [] %}
+										{% for i in schedule[3][t+(times|length)*6] %}
+											<div class="timetable_box">
+												<p class="timetable_box_subject">
+												{{ i.activity_subject }}
+												</p>
+												<p class="timetable_box_group">
+												{{ i.activity_group }}
+												</p>
+												<p class="timetable_box_lecturer">
+												{{ i.activity_lecturer }}
+												</p>
+												<p class="timetable_box_classroom">
+												{{ i.activity_classroom }} : {{ i.activity_faculty }}
+												</p>
+											</div>	
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+							</td>
+						{% endif %}
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+		<div id="Review" class="tabcontent text-readable">
+			<div class="row">
+				<div class="col-md-6">
+					<div class="row padding-top font-24">
+						<span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span>
+						<p class="review">Durations:</p>
+					</div>
+					<div class="info">
+						<p><strong>Note: </strong>Format — <i>Hours:Minutes:Seconds:Milliseconds.</i></p>
+					</div>
+					<div class="row padding-top">
+						{% for key, value in durations.items() %}
+							<div class="col-md-8 offset-md-2 font-18">
+								{{key}}:<br><b class="padding-left-time">{{value}}</b>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="row padding-top font-24">
+						<span class="glyphicon glyphicon-grain" aria-hidden="true"></span>
+						<p class="review">Colors used:</p>
+					</div>
+					<div class="info">
+						<p><strong>Note: </strong>Colors needed for different algorithms.</p>
+					</div>
+					<div class="row padding-top">
+						{% for key, value in used_colors.items() %}
+							<div class="col-md-8 offset-md-2 font-18">
+								{{key}}:<br><b class="padding-left-time">{{value}}</b>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+			
+			<hr>
+			<div class="row padding-top font-24">
+				<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+				<p class="review">Colored graphs:</p>
+			</div>
+			<div class="info">
+				<p><strong>Note: </strong>Representation of graph coloring by different algorithms.</p>
+			</div>
+			<div class="row padding-top">
+				<div class="col-md-1"></div>
+				<div class="col-md-5">
+					<figure>
+						<img class="images" id="myImg" src="{{ url_for('static', filename = 'graphs/'+'greedy.png') }}" alt="Greedy Welsh Powell Algorithm" width=100%/>
+						<figcaption>Img. 1: Greedy</figcaption>
+					</figure>
+				</div>
+				<div class="col-md-5">
+					<figure>
+						<img class="images" id="myImg" src="{{ url_for('static', filename = 'graphs/'+'dsatur.png') }}" alt="DSatur Algorithm" width=100%/>
+						<figcaption>Img. 2: DSatur</figcaption>
+					</figure>
+				</div>
+				<div class="col-md-1"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-1"></div>
+				<div class="col-md-5">
+					<figure>
+						<img class="images" id="myImg" src="{{ url_for('static', filename = 'graphs/'+'rlf.png') }}" alt="Recursive Largest First Algorithm" width=100%/>
+						<figcaption>Img. 3: Recursive Largest First</figcaption>
+					</figure>
+				</div>
+				<div class="col-md-5">
+					<figure>
+						<img class="images" id="myImg" src="{{ url_for('static', filename = 'graphs/'+'tabu.png') }}" alt="Tabu Search Algorithm" width=100%/>
+						<figcaption>Img. 4: Tabu search</figcaption>
+					</figure>
+				</div>
+				<div class="col-md-1"></div>
+				<div id="myModal" class="modal">
+				  <span class="close">&times;</span>
+				  <img class="modal-content" id="img01">
+				  <div id="caption"></div>
+				</div>
+			</div>
+			<hr>
+			<div class="row padding-top font-24">
+				<span class="glyphicon glyphicon-pawn" aria-hidden="true"></span>
+				<p class="review">Allocation:</p>
+			</div>
+			<div class="info">
+				<p><strong>Note: </strong>Representation of graph coloring by different algorithms in text.</p>
+			</div>
+			<div class="row padding-top">
+				<div class="col-md-1"></div>
+				<!-- <div class="col-md-2">
+					{% for i in data|sort(attribute='activity_subject')%}
+						{% if i.activity_algorithm == 'greedy' %}
+							<b><p>{{ i.activity_subject }}</p></b>
+						{% endif %}
+					{% endfor %}
+				</div>
+				<div class="col-md-2">
+					{% for i in data|sort(attribute='activity_subject')%}
+						{% if i.activity_algorithm == 'greedy' %}
+							<p>{{ i.activity_time_slot }}</p>
+						{% endif %}
+					{% endfor %}
+				</div>
+				<div class="col-md-2">
+					{% for i in data|sort(attribute='activity_subject')%}
+						{% if i.activity_algorithm == 'dsatur' %}
+							<p>{{ i.activity_time_slot }}</p>
+						{% endif %}
+					{% endfor %}
+				</div>
+				<div class="col-md-2">
+					{% for i in data|sort(attribute='activity_subject')%}
+						{% if i.activity_algorithm == 'rlf' %}
+							<p>{{ i.activity_time_slot }}</p>
+						{% endif %}
+					{% endfor %}
+				</div>
+				<div class="col-md-2">
+					{% for i in data|sort(attribute='activity_subject')%}
+						{% if i.activity_algorithm == 'tabu' %}
+							<p>{{ i.activity_time_slot }}</p>
+						{% endif %}
+					{% endfor %}
+				</div> -->
+				<div class="col-md-10">
+					<div class="minhold">
+					    <div class="box">
+					    	{% for i in data|sort(attribute='activity_subject')%}
+								{% if i.activity_algorithm == 'greedy' %}
+									<b><p class="p-box">{{ i.activity_subject }}</p></b>
+								{% endif %}
+							{% endfor %}
+					    </div>
+					    <div class="box">
+					    	{% for i in data|sort(attribute='activity_subject')%}
+								{% if i.activity_algorithm == 'greedy' %}
+									<p class="p-box">{{ i.activity_time_slot }}</p>
+								{% endif %}
+							{% endfor %}
+					    </div>
+					    <div class="box">
+					    	{% for i in data|sort(attribute='activity_subject')%}
+								{% if i.activity_algorithm == 'dsatur' %}
+									<p class="p-box">{{ i.activity_time_slot }}</p>
+								{% endif %}
+							{% endfor %}
+					    </div>
+					    <div class="box">
+					    	{% for i in data|sort(attribute='activity_subject')%}
+								{% if i.activity_algorithm == 'rlf' %}
+									<p class="p-box">{{ i.activity_time_slot }}</p>
+								{% endif %}
+							{% endfor %}
+					    </div>
+					    <div class="box">
+					    	{% for i in data|sort(attribute='activity_subject')%}
+								{% if i.activity_algorithm == 'tabu' %}
+									<p class="p-box">{{ i.activity_time_slot }}</p>
+								{% endif %}
+							{% endfor %}
+					    </div>
+					</div>
+				</div>
+				<div class="col-md-1"></div>
+			</div>
+			<hr>
+		</div>
+	</div>
+	<div class="col-md-1"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openTab(evt, name) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(name).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+<script>
+	function searchFunction() {
+		var input, filter, found, table, tr, td, i, j;
+		    input = document.getElementById("search");
+		    filter = input.value.toUpperCase();
+		    table = document.getElementById("scheduleTable");
+		    tr = table.getElementsByTagName("tr");
+		    for (i = 0; i < tr.length; i++) {
+		        td = tr[i].getElementsByTagName("td");
+		        for (j = 0; j < td.length; j++) {
+		            if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+		                found = true;
+		            }
+		        }
+		        if (found) {
+		            tr[i].style.display = "";
+		            found = false;
+		        } else {
+		        	if (tr[i].id != 'tableHeader')
+		        		{
+		        			tr[i].style.display = "none";
+		        		} 
+		        }
+		    }
+		}
+</script>
+<script type="text/javascript">
+function dropdownFilters() {
+  var x = document.getElementById("filters");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}	
+</script>
+<script>
+	// create references to the modal...
+var modal = document.getElementById('myModal');
+// to all images -- note I'm using a class!
+var images = document.getElementsByClassName('images');
+// the image in the modal
+var modalImg = document.getElementById("img01");
+// and the caption in the modal
+var captionText = document.getElementById("caption");
+
+// Go through all of the images with our custom class
+for (var i = 0; i < images.length; i++) {
+  var img = images[i];
+  // and attach our click listener for this image.
+  img.onclick = function(evt) {
+    modal.style.display = "block";
+    modalImg.src = this.src;
+    captionText.innerHTML = this.alt;
+  }
+}
+
+var span = document.getElementsByClassName("close")[0];
+
+span.onclick = function() {
+  modal.style.display = "none";
+}
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modalImg) {
+    modal.style.display = "none";
+  }
+}
+</script>
+{% endblock %}

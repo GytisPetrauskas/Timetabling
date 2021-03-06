@@ -1,0 +1,259 @@
+.schedule
+{
+	border-collapse: collapse;
+ 	width: 100%;
+ 	table-layout: fixed;
+}
+
+.schedule th:first-child
+{
+	width: 7%;
+}
+
+.schedule td:first-child
+{
+	text-align: left;
+	background-color: #181c20;
+	color: white;
+}
+
+.schedule th
+{
+	font-weight: bold;
+	width: auto;
+}
+
+.schedule td, .schedule th
+{
+	border: 1px solid white;
+  	padding: 10px;
+}
+
+.schedule tr:nth-child(even)
+{
+	background-color: #f2f2f2
+}
+
+.schedule tr:nth-child(odd)
+{
+	background-color: white;
+}
+
+.schedule th
+{
+	padding: 12px 10px;
+	text-align: left;
+	background-color: #181c20;
+	color: white;
+}
+
+.timetable_box
+{
+	padding: 15px;
+	margin: 10px 0px;
+	background-color: #595867;
+	color: white;
+	border-radius: 15px;
+}
+
+.timetable_box_subject
+{
+	letter-spacing: 3px;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+.timetable_box_group
+{
+	margin:0px;
+	font-size: 12px;
+}
+
+.timetable_box_lecturer
+{
+	margin:0px;
+	font-size: 12px;
+}
+
+.timetable_box_classroom
+{
+	margin:0px;
+	font-size: 12px;
+}
+
+#GreedyWelshPowell input[type=text] {
+    border: none;
+    border-bottom: 4px solid #8842d5;
+}
+
+#GreedyWelshPowell > input[type=text]:focus {
+	outline: none;
+}
+
+#filters > div > div.items > ul
+{
+	list-style-type: none !important;
+}
+
+#filters > div > div.items > ul > li
+{
+	margin:0 0 30px 0 !important; 
+	font-size: 13px;
+}
+
+#filters > div.col-md-3 > div.items
+{
+  height: 290px;
+  padding: 20px 0px;
+  overflow-y: auto;
+}
+
+.filter_button_styling
+{
+  	color: rgba(42,39,42,0.75) !important;
+  	background: #ffffff;
+  	border: 3px solid rgba(42,39,42,0.75) !important;
+  	border-radius: 6px;
+  	transition: all 0.3s ease 0s;
+  	font-weight: bold;
+  	padding: 8px;
+}
+
+.filter_button_styling:hover
+{
+	color: white !important;
+	border-radius: 50px;
+	border-color: white !important;
+	background-color: rgba(42,39,42,0.75);
+	transition: all 1s ease 0s;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+#filters > div > h4
+{
+	font-weight: bold;
+}
+
+.images
+{
+	border-radius: 5px;
+ 	cursor: pointer;
+ 	transition: 0.3s;
+}
+
+.images:hover
+{
+	opacity: 0.8;
+}
+
+.modal {
+  display: none;
+  /* Hidden by default */
+  position: fixed;
+  /* Stay in place */
+  z-index: 1;
+  /* Sit on top */
+  padding-top: 100px;
+  /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%;
+  /* Full width */
+  height: 100%;
+  /* Full height */
+  overflow: auto;
+  /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0);
+  /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.9);
+  /* Black w/ opacity */
+}
+
+.modal-content {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+}
+
+#caption {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 10px 0;
+  height: 150px;
+}
+
+.modal-content,
+#caption {
+  animation-name: zoom;
+  animation-duration: 0.6s;
+}
+
+@keyframes zoom {
+  from {
+    transform: scale(0)
+  }
+  to {
+    transform: scale(1)
+  }
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 700px) {
+  .modal-content {
+    width: 100%;
+  }
+}
+
+figcaption
+{
+	text-align: center;
+	font-weight: bold;
+	/*font-size: 20px;*/
+}
+
+.review
+{
+  font-weight: bold;
+  padding-left: 10px;
+}
+
+.font-24
+{
+  font-size: 24px;
+  padding-left: 30px;
+}
+
+.font-18
+{
+  font-size: 18px;
+  padding: 10px;
+}
+
+
+
+.padding-left-time
+{
+  padding-left: 50px;
+}

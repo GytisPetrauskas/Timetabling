@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+	<div class="col-md-10 offset-md-1">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+	      		{% if messages %}
+	        		{% for category, message in messages %}
+		        	   <div class="alert alert-{{ category }}" role="alert"> {{ message }}</div>
+		        	   <hr>
+	        		{% endfor %}
+	      		{% endif %}
+	    {% endwith %}
+	</div>
+</div>
+<div class="row timetabling_buttons">
+	<div class="col-md-4 offset-md-4 center-text width200">
+		<span class="text-readable center-span block-display"> <!-- style="width: 464px;" -->
+			<button onclick="dropdownGenerationForm()" class="btn button-styling no-border">
+			<span class="glyphicon glyphicon-menu-down">
+			</span>
+			</button>
+			<b>Random data generation</b>
+		</span>
+		<div id="randomGen" class="text-readable dont-display">
+			<u><b>Generation menu</b></u>
+			<div class="info">
+				<p><strong>Note:</strong> This form is used to generate random data for timetable generation.</p>
+			</div>
+			<form action="/generate" method=POST enctype=multipart/form-data class="center">
+				<br>
+				<div class="row">
+					<div class="col-25">
+						No of <b>groups</b>:
+					</div>
+					<div class="col-75">
+						<input type=number name=data_gen_groups value=3 class="align-center bold width50" min=1 max=10001 required>
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-25">
+						No of <b>lecturers</b>: 
+					</div>
+					<div class="col-75">
+						<input type=number name=data_gen_lecturers value=10 class="align-center bold width50" min=1 max=100001 required>
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-25">
+						No of <b>faculties</b>:
+					</div>
+					<div class="col-75">
+						<input type=number name=data_gen_faculties value=2 class="align-center bold width50" min=1 max=50 required>
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-25 word-wrap">
+						No of <b>classrooms (per/faculty)</b>:
+					</div>
+					<div class="col-75">
+						<input type=number name=data_gen_classrooms value=5 class="align-center bold width50" min=1 max=10001 required>
+					</div>
+				</div>
+				<br>
+				<input type=submit value="Generate Data" class="submit submit-generation" title="Generate data with the number you entered">
+			</form>
+			<div class="col-md-6 offset-md-3">
+				<a href="{{ url_for('removeData', name = 'all') }}">
+					<button class="btn btn-danger btn-block align-right-button" title="Delete all data">Delete data</button>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row timetabling_buttons">
+	<div class="col-md-4 offset-md-4 center-text width200">
+		<span class="text-readable center-span block-display"> <!-- style="width: 464px;" -->
+			<button onclick="dropdownSelectWorkdayForm()" class="btn button-styling no-border">
+			<span class="glyphicon glyphicon-menu-down">
+			</span>
+			</button>
+			<b>Select workdays:</b>
+		</span>
+		<div id="selectWorkday" class="text-readable dont-display">
+			<u><b>Generation menu</b></u>
+			<div class="info">
+				<p><strong>Note:</strong> This form is used to select working days for generating schedule.</p>
+			</div>
+			<form action="/setWorkdays" method=POST enctype=multipart/form-data class="center padding-bottom">
+				<input type="checkbox" id="Monday" name="days" value="Monday" checked>
+				<label for="Monday"> Monday</label><br>
+				<input type="checkbox" id="Tuesday" name="days" value="Tuesday" checked>
+				<label for="Tuesday"> Tuesday</label><br>
+				<input type="checkbox" id="Wednesday" name="days" value="Wednesday" checked>
+				<label for="Wednesday"> Wednesday</label><br>
+				<input type="checkbox" id="Thursday" name="days" value="Thursday" checked>
+				<label for="Thursday"> Thursday</label><br>
+				<input type="checkbox" id="Friday" name="days" value="Friday" checked>
+				<label for="Friday"> Friday</label><br>
+				<input type="checkbox" id="Saturday" name="days" value="Saturday">
+				<label for="Saturday"> Saturday</label><br>
+				<input type="checkbox" id="Sunday" name="days" value="Sunday">
+				<label for="Sunday"> Sunday</label><br>
+				<input type=submit value="Save Workdays" class="submit submit-generation" title="Submit workday selection">
+			</form>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-4 offset-md-4">
+		<div class="button_cont" align="center"><a class="button-styling" href="{{url_for('createSchedule')}}" rel="nofollow noopener">Create Timetable</a></div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-1"></div>
+
+	<div class="col-md-10">
+		<div class="tab">
+		  	<button class="tablinks" onclick="openTab(event, 'Courses')">Courses</button>
+		  	<button class="tablinks" onclick="openTab(event, 'Classrooms')">Classrooms</button>
+		  	<button class="tablinks" onclick="openTab(event, 'Groups')">Groups</button>
+		</div>
+		<div id="Courses" class="tabcontent text-readable">
+			<div class="row padding-top">
+				<form action="/getdata" method=POST enctype=multipart/form-data>
+		  			<div class="col-md-4">
+				      	<input type=file name=courses>
+				      	<input type=submit value=Upload class="submit">
+				      	<input type="hidden" name="courses" value="courses">
+				    </div>
+				</form>
+			    <div class="col-md-8">
+			    	<a href="{{ url_for('removeData', name = 'courses') }}"><button class="btn btn-danger align-right-button">Delete Table</button></a>
+			    </div>
+			</div>
+		      	<div class="info">
+				  <p><strong>Note:</strong> Excel files need to have <u>headers</u>!</p>
+				  <p><strong>Note:</strong> Excel file data for <u>courses</u> are as follows: <strong>Subject, Credits, Group, Lecturer</strong>.</p>
+				</div>
+			<div class="row add-data">
+				<div class="col-md-10 offset-md-1 center-elements-outer">
+					<div class="center-elements-inner">
+						<form action="/addsingle" method=POST enctype=multipart/form-data>
+							<span class='add'>Subject</span><input type=text name=subject class="add-input" required>
+							<span class='add'>Credits</span><input type=number name=credits min=5 max=20 class="add-input" required>
+							<span class='add'>Group</span><input type=text name=group size=15 class="add-input" required>
+							<span class='add'>Lecturer</span><input type=text name=lecturer size=15 class="add-input" required>
+							<input type=submit value=Add>
+							<input type="hidden" name="courses" value="courses">
+						</form>
+					</div>
+				</div>
+			</div>
+				<table id="data_courses" class="data">
+					<tr>
+						<th>Subject</th>
+						<th>Credits</th>
+						<th>Group</th>
+						<th>Lecturer</th>
+					</tr>
+					{% for c in courses|reverse%}
+					<tr>
+						<td>{{ c.subject }}</td>
+						<td>{{ c.credits }}</td>
+						<td>{{ c.group }}</td>
+						<td>{{ c.lecturer }}</td>
+						<td class="delete-item-courses"><a href="{{ url_for('removeSingle', name = c.subject, data_for = 'courses') }}"><button class="btn btn-danger btn-block">X</button></td>
+					</tr>
+					{% endfor %}
+				</table>
+		</div>
+
+
+		<div id="Classrooms" class="tabcontent text-readable">
+			<div class="row padding-top">
+		  	<form action="/getdata" method=POST enctype=multipart/form-data>
+		  			<div class="col-md-4">
+				      	<input type=file name=classrooms>
+				      	<input type=submit value=Upload class="submit">
+				      	<input type="hidden" name="classrooms" value="classrooms">
+			</form>
+			      	</div>
+		  			<div class="col-md-8">
+			  			<a href="{{ url_for('removeData', name = 'classrooms') }}"><button class="btn btn-danger align-right-button">Delete Table</button></a>
+			  		</div>
+		      	</div>
+		      	<div class="info">
+				  <p><strong>Note:</strong> Excel files need to have <u>headers</u>!</p>
+				  <p><strong>Note:</strong> Excel file data for <u>classrooms</u> are as follows: <strong>Classroom, Capacity</strong>.</p>
+				</div>
+				<div class="row add-data">
+					<div class="col-md-10 offset-md-1 center-elements-outer">
+						<div class="center-elements-inner">
+							<form action="/addsingle" method=POST enctype=multipart/form-data>
+								<span class='add'>Classroom</span><input type=text name=classroom class="add-input" required>
+								<span class='add'>Capacity</span><input type=number name=capacity min=1 max=1001 class="add-input" required>
+								<span class='add'>Faculty</span><input type=text name=faculty class="add-input" required>
+								<input type=submit value=Add>
+								<input type="hidden" name="classrooms" value="classrooms">
+							</form>
+						</div>
+					</div>
+				</div>
+				<table id="data_classrooms" class="data">
+					<tr>
+						<th>Classroom</th>
+						<th>Capacity</th>
+						<th>Faculty</th>
+					</tr>
+					{% for c in classrooms|reverse%}
+					<tr>
+						<td>{{ c.classroom }}</td>
+						<td>{{ c.capacity }}</td>
+						<td>{{ c.faculty }}</td>
+						<td class="delete-item-classrooms"><a href="{{ url_for('removeSingle', name = c.classroom, data_for = 'classrooms') }}"><button class="btn btn-danger btn-block">X</button></td>
+					</tr>
+					{% endfor %}
+				</table>
+		</div>
+
+
+		<div id="Groups" class="tabcontent text-readable">
+			<div class="row padding-top">
+		  	<form action="/getdata" method=POST enctype=multipart/form-data>
+		  			<div class="col-md-4">
+		  				<span class="file-input">
+				      		<input type=file name=groups>
+				      	</span>
+				      	<input type=submit value=Upload class="submit">
+				      	<input type="hidden" name="groups" value="groups">
+				    </div>
+			</form>
+				    <div class="col-md-8">
+				    	<a href="{{ url_for('removeData', name = 'groups') }}"><button class="btn btn-danger align-right-button">Delete Table</button></a>
+				    </div>
+				</div>
+		      	<div class="info">
+				  <p><strong>Note:</strong> Excel files need to have <u>headers</u>!</p>
+				  <p><strong>Note:</strong> Excel file data for <u>groups</u> are as follows: <strong>Group, Size</strong>.</p>
+				</div>
+				<div class="row add-data">
+					<div class="col-md-10 offset-md-1 center-elements-outer">
+						<div class="center-elements-inner">
+							<form action="/addsingle" method=POST enctype=multipart/form-data>
+								<span class='add'>Group</span><input type=text name=group class="add-input" required>
+								<span class='add'>Size</span><input type=number name=size min=1 max=1001 class="add-input" required>
+								<input type=submit value=Add>
+								<input type="hidden" name="groups" value="groups">
+							</form>
+						</div>
+					</div>
+				</div>
+				<table id="data_groups" class="data">
+					<tr>
+						<th>Group</th>
+						<th>Size</th>
+					</tr>
+					{% for g in groups|reverse%}
+					<tr>
+						<td>{{ g.group }}</td>
+						<td>{{ g.size }}</td>
+						<td class="delete-item-groups"><a href="{{ url_for('removeSingle', name = g.group, data_for = 'groups') }}"><button class="btn btn-danger btn-block">X</button></td>
+					</tr>
+					{% endfor %}
+				</table>
+		</div>
+	</div>
+
+
+	<div class="col-md-1"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+function openTab(evt, name) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(name).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+<script type="text/javascript">
+function dropdownGenerationForm() {
+  var x = document.getElementById("randomGen");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}	
+</script>
+<script>
+function dropdownSelectWorkdayForm() {
+  var x = document.getElementById("selectWorkday");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}	
+</script>
+{% endblock %}

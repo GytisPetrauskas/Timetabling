@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+	<div class="col-md-5">
+		<img src="{{ url_for('static', filename='/image/graph1.png') }}" class="margin-left-100">
+	</div>
+	<!-- <div class="col-md-1"><hr style="margin-top: 630px;border:3px solid black"></div> -->
+	<div class="col-md-1"></div>
+	<div class="col-md-5 text-size-16 index-page-text">
+		<div class="text-readable padding-all-20 index-page-text-paragraph">
+			<p>
+			<b>"TableYourTime"</b> is a software created for simple timetable generation using graph algorithms.
+			</p>
+			<p>
+			Graph coloring algorithms are used, to generate optimal timetable solutions for Your data.
+			</p>
+			<p>
+				Click the button bellow to start your timetable creation.
+			</p>
+		</div>
+		<div class="row">
+			<div class="col-md-4 offset-md-4">
+				<!-- <a class="index-timetable-button-a" href="{{url_for('timetabling')}}"><button type="button" class="btn index-timetable-button">Create Timetable</button></a> -->
+				<div class="button_cont" align="center"><a class="button-styling move-index-button" href="{{url_for('timetabling')}}" rel="nofollow noopener">Start Timetabling</a></div>
+			</div>
+		</div>
+		<!-- 
+		<div>
+			<img src="{{ url_for('static', filename='/image/graph2.png') }}" width="75%" height="75%" class="second-image">
+		</div> -->
+	</div>
+	<div>
+	</div>
+</div>
+{% endblock %}

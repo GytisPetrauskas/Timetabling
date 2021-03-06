@@ -1,0 +1,173 @@
+.data
+{
+	border-collapse: collapse;
+ 	width: 100%;
+}
+
+.data th
+{
+	font-weight: bold;
+}
+
+.data td, .data th
+{
+	border: 1px solid white;
+  	padding: 10px;
+}
+
+.data tr:nth-child(even)
+{
+	background-color: #f2f2f2
+}
+
+.data tr:nth-child(odd)
+{
+	background-color: white;
+}
+
+.data tr:nth-child(even):hover
+{
+	background-color: white !important;
+	border: 2px dashed black;
+}
+
+.data tr:nth-child(odd):hover
+{
+	background-color: #f2f2f2;
+	border: 2px dashed black;
+}
+
+.data th
+{
+	padding: 12px 10px;
+	text-align: left;
+	background-color: #181c20;
+	color: white;
+}
+
+#courses
+{
+	width: 80%;
+    padding: 5px 5px;
+    margin: 0 auto;
+    background: #FF6700;
+    border-radius: 25px; 
+}
+
+#courses input {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border-radius: 25px;
+}
+
+.align-right-button
+{
+	float: right !important;
+    margin-top: 14px;
+}
+
+.row-inline-block
+{
+	display: inline-block;
+}
+
+input[type=submit] {
+    padding:5px 15px;
+    margin-top: 15px;
+    background:#ccc; 
+    border:0 none;
+    cursor:pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #0275d8;
+    color: white;
+}
+
+.custom-file-upload {
+    padding:5px 15px; 
+    background:#ccc; 
+    border:0 none;
+    cursor:pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #0275d8;
+    color: white;
+    outline: none;
+}
+
+.timetabling_buttons
+{
+	padding: 20px 15px;
+}
+
+.delete-item-courses{
+    width: 10px !important;
+}
+.delete-item-classrooms{
+    width: 10px !important;
+}
+.delete-item-groups{
+    width: 10px !important;
+}
+
+.align-center
+{
+    text-align: center;
+}
+
+.bold
+{
+    font-weight: bold;
+}
+
+.add
+{
+    background-color: white;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.add-data
+{
+    margin: 10px
+}
+
+.add-input
+{
+    height: 38px;
+    padding-top: 2px;
+}
+
+.center
+{
+    text-align: center;
+}
+
+.timetable-button
+{
+    font-weight: bold !important;
+    padding: 20px !important;
+    margin: 20px 0px 40px 0px !important;
+    font-size: 36px !important;
+    border: 5px solid #353A47 !important;
+    background-color: #353A47;
+    color: white !important;
+}
+
+.timetable-button:hover {
+    background-color: white;
+    color: #353A47 !important;
+    transition: 1s;
+}
+
+.submit
+{
+    background-color: #428BCA!important;
+}
+
+.submit:hover
+{
+    background-color: #0275d8 !important;
+}
