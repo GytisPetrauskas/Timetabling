@@ -1,0 +1,9 @@
+Requirements: 
+Python 3.9.2;
+Pip.
+
+Installation:
+1) Go to the project location with powershell;
+2) input "pip install -r requirements.txt" command into powershell;
+3) Start the project with "python app.py";
+4) Connect to 127.0.0.1:5000 in Your web browser.
