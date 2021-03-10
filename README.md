@@ -5,8 +5,8 @@ Timetabling Software used to create timetables with four algorithms. The timetab
 Also, there is a possibility to review the efficiency of each algorithm (colors used, duration, visual representation of a colored graph).
 
 Requirements: 
-Python 3.9.2;
-Pip.
+- Python 3.9.2;
+- Pip.
 
 Installation:
 1) Go to the project location with powershell;
