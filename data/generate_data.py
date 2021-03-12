@@ -2,14 +2,16 @@ import random
 from random import randrange, randint
 import math
 
-def genClassrooms(q, f_q, min_size, max_size):
-	#--- CLASSROOMS
+
+#--- CLASSROOMS
+def genClassrooms(q, f_q, min_size, max_size):	
 	classrooms = []
 	for f in range(f_q):
 		# Adding one classroom of max size to each faculty;
 		if q==1:
 			for i in range(1):
 				classrooms.append(['Classroom'+str(len(classrooms)), max_size, 'Faculty'+str(f)])
+		# Generating random classrooms;
 		elif q>1:
 			for i in range(1):
 				classrooms.append(['Classroom'+str(len(classrooms)), max_size, 'Faculty'+str(f)])
@@ -20,16 +22,16 @@ def genClassrooms(q, f_q, min_size, max_size):
 			classrooms.append(['Classroom'+str(len(classrooms)), max_size, 'Faculty'+str(f)])
 	return classrooms
 
-
+#--- GROUPS
 def genGroups(q, min_size, max_size):
-	#--- GROUPS
+	
 	groups = []
 	for i in range(q):
 		groups.append(['Group'+str(i), randint(min_size, max_size)])
 	return groups
 
+#--- COURSES
 def genCourses(lect_q, groups):
-	#--- COURSES
 	courses = []
 	courses_with_ten_credits = []
 	subject_no = 0
@@ -65,7 +67,7 @@ def genCourses(lect_q, groups):
 				else:
 					courses.append(['Subject'+str(i+subject_no), 5.0, g[0]])
 			subject_no += 4
-	# Appoint lecturers equally
+	# Appoint lecturers to courses equally;
 	lecturer_appointments = {}
 	for i in range(lect_q):
 		lecturer_appointments['Lecturer'+str(i)] = int(math.ceil(len(courses)/lect_q))
@@ -84,15 +86,15 @@ def genCourses(lect_q, groups):
 		lecturer_appointments[appointed_lecturer] -= 1
 	return courses
 
+# Main function of this file;
 def genData(group_q, lecturer_q, classroom_q, faculty_q):
 	# Min and Max size of classrooms and groups respectively;
 	# Note: Change this according to your preferences;
 	min_size = 20
 	max_size = 40
-	#
-
+	# Generating data
 	classrooms = genClassrooms(classroom_q, faculty_q, min_size, max_size)
 	groups = genGroups(group_q, min_size, max_size)
 	courses = genCourses(lecturer_q, groups)
-	
+	# Returning generated data to the main file;
 	return courses, groups, classrooms
