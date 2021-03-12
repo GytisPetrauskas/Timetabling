@@ -1,3 +1,7 @@
+# Flask web based project for creating timetables using Graph coloring algorithms of Graph Theory.
+# Bachelor thesis, topic: Timetabling using graph coloring algorithms.
+
+# Python library imports;
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
@@ -8,6 +12,7 @@ import os
 import copy
 import time
 
+# File imports;
 import data.generate_data as gen
 from objects.graph import Graph as graphs
 from objects.activities import Activities as act
@@ -17,9 +22,9 @@ import scheduling.room_alloc as ra
 import scheduling.create_schedule as cs
 import scheduling.optimized_coloring as oc
 import scheduling.algorithm_review as ar
-
+# Upload folder destination;
 UPLOAD_FOLDER = os.getcwd()+'/static/uploads/'
-
+# Configurations;
 app = Flask(__name__)
 app.secret_key = "secret"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -27,10 +32,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.getcwd()+'/scheduling.db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-
 db = SQLAlchemy(app)
 
 
+# Database logic;
 class Courses(db.Model):
 	__tablename__ = 'courses'
 	subject = db.Column(db.String(50), primary_key=True)
@@ -77,28 +82,34 @@ class Schedules(db.Model):
 	schedules_groups = db.relationship("Groups", back_populates="groups_schedules")
 
 
+# Routing and main logic;
+
+# landing page;
 @app.route("/")
 def index():
     return render_template('pages/index.html')
 
+# data entry, option chice page;
 @app.route("/timetabling", methods=['GET','POST'])
 def timetabling():
 	courses = Courses.query.all()
 	classrooms = Classrooms.query.all()
 	groups = Groups.query.all()
-
 	return render_template('pages/timetabling.html', courses=courses, classrooms=classrooms, groups=groups)
 
-
+# random data generation functionality;
 @app.route('/generate', methods = ['GET', 'POST'])
 def generateData():
+	# Retrieving data from form fields;
 	group_quantity = int(request.form['data_gen_groups'])
 	lecturer_quantity = int(request.form['data_gen_lecturers'])
 	classroom_quantity = int(request.form['data_gen_classrooms'])
 	faculty_quantity = int(request.form['data_gen_faculties'])
+	# Reference to data generation file;
 	courses, groups, classrooms = gen.genData(group_quantity, lecturer_quantity, classroom_quantity, faculty_quantity)
-
+	# Removing old data;
 	removeData('all')
+	# Inserting generated data into DB tables;
 	for c in courses:
 		course = Courses(
 			subject=c[0],
@@ -121,39 +132,48 @@ def generateData():
 		)
 		db.session.add(group)
 	db.session.commit()
-
+	# Reloading the page with a success flash message;
 	flash('Random data generated.', 'success')
 	return redirect(url_for('timetabling'))
 
+# Work day setting functionality;
 @app.route('/setWorkdays', methods= ['GET', 'POST'])
 def settingWorkdays():
+	# Retrieving chosen days from the form;
+	# If no days were selected, redirecting back to the same page with an error message;
 	if request.form.getlist('days') == []:
 		flash('Select atleast one workday!', 'danger')
 		return redirect(url_for('timetabling'))
+	# If days are selected, reseting the current work days;
 	cs.setDays(request.form.getlist('days'))
+	# Reloading the page with a success flash message;
 	flash('Workdays set successfully!', 'success')
 	return redirect(url_for('timetabling'))
 
+# Retrieving data from .xlsx and inserting it into the DB tables;
 @app.route('/getdata', methods = ['GET', 'POST'])
 def getData():
 	data_ = list(request.form.keys())[0]
 	if request.method == 'POST':
 		f = request.files[data_]
+		# Check if a file was selected before pressing the "upload" button;
 		if f.filename == '':
 			flash('No file selected!', 'danger')
 			return redirect(url_for('timetabling'))
+		# Check if file is of .xlsx format;
 		if not f.filename.endswith('.xlsx'):
 			flash('File format incorrect (Only upload .xlsx files)!', 'danger')
 			return redirect(url_for('timetabling'))
-
+		# Save file into the uploads folder;
 		f.save(os.path.join(app.config['UPLOAD_FOLDER'], f.filename))
-
+		# Opening the .xlsx file, retrieving data;
 		wb = xlrd.open_workbook(os.path.join(app.config['UPLOAD_FOLDER'], f.filename))
 		sheet = wb.sheet_by_index(0)
 		data = []
 		for i in range(1, sheet.nrows):
 			data.append(sheet.row_values(i))
-
+	# Check if the amount of columns in a file is as needed;
+	# If it is in fact correct, delete the old data from DB table and add new data;
 	def is_len_correct(data, length):
 		correct = True
 		for d in data:
@@ -161,7 +181,6 @@ def getData():
 				correct = False
 				break
 		return correct
-
 	if request.form[data_] == "courses":
 		if not is_len_correct(data, 4):
 			flash('Data inserted is corrupted!', 'danger')
@@ -199,18 +218,19 @@ def getData():
 			)
 			db.session.add(to_add)
 	db.session.commit()
-
 	wb.release_resources()
+	# Remove the .xlsx file from the uploads folder;
 	for file in os.listdir(UPLOAD_FOLDER):
 		if file.endswith('.xlsx'):
 			try:
 				os.remove(UPLOAD_FOLDER+file)
 			except FileNotFoundError:
 				continue
-
+	# Reloading the page with a success flash message;
 	flash('Data inserted successfully!', 'success')
 	return redirect(url_for('timetabling'))
 
+# Insert a single entry into the database by hand;
 @app.route('/addsingle', methods = ['GET', 'POST'])
 def addSingle():
 	data_ = list(request.form.keys())[-1]
@@ -256,11 +276,14 @@ def addSingle():
 		)
 	db.session.add(to_add)
 	db.session.commit()
+	# Reloading the page with a success flash message;
 	flash('<'+list(request.form.keys())[0]+'> Added successfully!','success')
 	return redirect(url_for('timetabling'))
 
+# Removing a single row of data from a selected database table;
 @app.route('/removesingle/<data_for>/<name>', methods = ['GET', 'POST'])
 def removeSingle(name, data_for):
+	# Deletion of a single row for a database table functionality;
 	if data_for == 'courses':
 		to_delete = Courses.query.filter_by(subject=name).one()
 	elif data_for =='classrooms':
@@ -269,10 +292,11 @@ def removeSingle(name, data_for):
 		to_delete = Groups.query.filter_by(group=name).one()
 	db.session.delete(to_delete)
 	db.session.commit()
-
+	# Reloading the page with a success flash message;
 	flash('<'+name+'> deleted successfully!', 'success')
 	return redirect(url_for('timetabling'))
 
+# Removing data from single or multiple DB tables;
 @app.route('/removedata/<name>', methods = ['GET', 'POST'])
 def removeData(name):
 	if name == 'courses':
@@ -286,6 +310,7 @@ def removeData(name):
 		db.session.query(Classrooms).delete()
 		db.session.query(Groups).delete()
 	db.session.commit()
+	# Reloading the page with a success flash message;
 	flash('Old data removed successfully!', 'success')
 	return redirect(url_for('timetabling'))
 
