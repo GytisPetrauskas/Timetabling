@@ -6,12 +6,13 @@ import math
 #--- CLASSROOMS
 def genClassrooms(q, f_q, min_size, max_size):	
 	classrooms = []
+	# For each faculty..
 	for f in range(f_q):
-		# Adding one classroom of max size to each faculty;
+		# Adding one classroom of max size;
 		if q==1:
 			for i in range(1):
 				classrooms.append(['Classroom'+str(len(classrooms)), max_size, 'Faculty'+str(f)])
-		# Generating random classrooms;
+		# Generating the remaining classrooms of random size;
 		elif q>1:
 			for i in range(1):
 				classrooms.append(['Classroom'+str(len(classrooms)), max_size, 'Faculty'+str(f)])
@@ -24,7 +25,6 @@ def genClassrooms(q, f_q, min_size, max_size):
 
 #--- GROUPS
 def genGroups(q, min_size, max_size):
-	
 	groups = []
 	for i in range(q):
 		groups.append(['Group'+str(i), randint(min_size, max_size)])
@@ -33,6 +33,7 @@ def genGroups(q, min_size, max_size):
 #--- COURSES
 def genCourses(lect_q, groups):
 	courses = []
+	# Declare a list for courses with 10 credits;
 	courses_with_ten_credits = []
 	subject_no = 0
 	for g in groups:
