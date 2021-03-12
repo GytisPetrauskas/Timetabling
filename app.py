@@ -1,5 +1,6 @@
-# Flask web based project for creating timetables using Graph coloring algorithms of Graph Theory.
+# Flask web based project for creating university timetables using Graph coloring algorithms of Graph Theory.
 # Bachelor thesis, topic: Timetabling using graph coloring algorithms.
+# Gytis Petrauskas 2020
 
 # Python library imports;
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -83,13 +84,13 @@ class Schedules(db.Model):
 
 
 # Routing and main logic;
-
-# landing page;
+#
+# Landing page;
 @app.route("/")
 def index():
     return render_template('pages/index.html')
 
-# data entry, option chice page;
+# Data entry, option chice page;
 @app.route("/timetabling", methods=['GET','POST'])
 def timetabling():
 	courses = Courses.query.all()
@@ -97,7 +98,7 @@ def timetabling():
 	groups = Groups.query.all()
 	return render_template('pages/timetabling.html', courses=courses, classrooms=classrooms, groups=groups)
 
-# random data generation functionality;
+# Random data generation;
 @app.route('/generate', methods = ['GET', 'POST'])
 def generateData():
 	# Retrieving data from form fields;
@@ -136,7 +137,7 @@ def generateData():
 	flash('Random data generated.', 'success')
 	return redirect(url_for('timetabling'))
 
-# Work day setting functionality;
+# Work day setting;
 @app.route('/setWorkdays', methods= ['GET', 'POST'])
 def settingWorkdays():
 	# Retrieving chosen days from the form;
@@ -314,11 +315,14 @@ def removeData(name):
 	flash('Old data removed successfully!', 'success')
 	return redirect(url_for('timetabling'))
 
+# Creating timetable schedules;
 @app.route('/createschedule', methods= [ 'GET', 'POST'])
 def createSchedule():
+	# Querying current data from DB tables;
 	courses = Courses.query.all()
 	groups = Groups.query.all()
 	classrooms = Classrooms.query.all()
+	# Checking if all tables have atleast 1 row of data;
 	need_courses = need_groups = need_classrooms = None
 	if courses == []:
 		need_courses = 'Add some courses'
@@ -326,7 +330,7 @@ def createSchedule():
 		need_groups = 'Add some groups'
 	if classrooms == []:
 		need_classrooms = 'Add classrooms'
-
+	# If atleast one of the tables is empty, reloading the page with an error message;
 	if need_courses != None or need_groups != None or need_classrooms != None:
 		if need_courses != None:
 			flash(need_courses, 'danger')
@@ -335,12 +339,17 @@ def createSchedule():
 		if need_classrooms != None:
 			flash(need_classrooms,'danger')
 		return redirect(url_for('timetabling'))
+	# Creating Activities objects with the current data in DB tables;
 	activities, isFailed = act.createActivities(courses, groups)
+	# Checking if data entered is correct;
 	if isFailed != None:
 		flash(isFailed, 'danger')
 		return redirect(url_for('timetabling'))
+	# Creating Graph objects (single object is a vertice) and all of them form a graph;
 	original_graph = graphs.createGraph(activities, classrooms)
+	# Using 3 greedy coloring algorithms on the graph and getting 3 colored graphs, also retrieving each algorithm's coloring duration;
 	greedy, dsatur, rlf, durations_greedy = gc.greedyGraphColoring(original_graph)
+	# Retrieving the smallest ammount of colors used by one of the three coloring algorithms;
 	colors_needed_min_greedy_algo = 0
 	temp_greedy = 0
 	temp_dsatur = 0
@@ -353,29 +362,36 @@ def createSchedule():
 		if rlf[i].color > temp_rlf:
 			temp_rlf = rlf[i].color
 	colors_needed_min_greedy_algo = max(temp_greedy, temp_dsatur, temp_rlf)
+	# Using the optimised Tabu search algorithm for a fourth coloring, retrieving the colored graph;
 	tabusearch, duration_optimized = oc.tabu_search(original_graph, colors_needed_min_greedy_algo)
+	# Retrieving all algorithm durations and saving them for later use;
 	durations = durations_greedy
 	durations['TabuSearch'] = str(duration_optimized)
 	ar.setDurations(durations)
 	ar.setColoringResults(greedy, dsatur, rlf, tabusearch)
+	# Assigning classes for activities of the university;
 	activities_greedy = ra.assignRooms(greedy, activities)
 	activities_dsatur = ra.assignRooms(dsatur, activities)
 	activities_rlf = ra.assignRooms(rlf, activities)
 	activities_tabu = ra.assignRooms(tabusearch, activities)
+	# Retrieving the number of slots needed with the current classroom assignments;
 	no_of_slots = len(cs.slots())
+	# Examining if the ammount of slots we have is not less then the ammount needed;
 	if len(activities_greedy) > no_of_slots or len(activities_dsatur) > no_of_slots or len(activities_rlf) > no_of_slots or len(activities_tabu) > no_of_slots:
 		flash('Not enough time slots for provided data, change up your data!', 'danger')
 		return redirect(url_for('timetabling'))
-
+	# Retrieving the maximum ammount of colors needed for an algorithm (One color = one time slot);
 	colors_needed = max(len(activities_greedy),len(activities_dsatur),len(activities_rlf),len(activities_tabu))
-
+	# Making the schedule;
 	schedule_greedy, message1 = cs.makeSchedule(activities_greedy, 'greedy')
 	schedule_dsatur, message2 = cs.makeSchedule(activities_dsatur, 'dsatur')
 	schedule_rlf, message3 = cs.makeSchedule(activities_rlf, 'rlf')
 	schedule_tabu, message4 = cs.makeSchedule(activities_tabu, 'tabu')
+	# Reloading the page with an error message if not a single schedule could be created with current data;
 	if schedule_greedy == None and schedule_dsatur == None and schedule_rlf == None and schedule_tabu == None:
-		flash('Couldnt create a schedule with a single algorithm, change your data!')
+		flash('Couldnt create a schedule with all of the algorithms, change up your data!')
 		return redirect(url_for('timetabling'))
+	# Checking which algorithms didn't have a schedule created for them;
 	message_final = ''
 	if schedule_greedy == None:
 		message_final += message1+'\n'
@@ -385,14 +401,15 @@ def createSchedule():
 		message_final += message3+'\n'
 	if schedule_tabu == None:
 		message_final += message4+'\n'
-
+	# Saving all schedules in a single list;
 	schedules = []
 	schedules.append(schedule_greedy)
 	schedules.append(schedule_dsatur)
 	schedules.append(schedule_rlf)
 	schedules.append(schedule_tabu)
-
+	# Removing old data;
 	db.session.query(Schedules).delete()
+	# Inserting new data;
 	for i in range(len(schedules)):
 		try:
 			for j in schedules[i]:
@@ -410,11 +427,14 @@ def createSchedule():
 		except TypeError:
 			continue
 	db.session.commit()
+	# Redirecting to the schedule page with a success flash message;
 	flash('Scheduling complete!\n'+message_final, 'success')
 	return redirect(url_for('schedule', category='all', filter_key='all'))	
 
+# Schedule page;
 @app.route('/schedule/<category>/<filter_key>', methods= [ 'GET', 'POST'])
 def schedule(category, filter_key):
+	# Filtering logic, loading everything at first, loading the selected data if a filter is selected;
 	if category == 'all' and filter_key == 'all':
 		schedule = Schedules.query.all()
 	elif category == 'groups':
@@ -425,9 +445,11 @@ def schedule(category, filter_key):
 		schedule = Schedules.query.filter_by(activity_classroom=filter_key)
 	elif category == "subjects":
 		schedule = Schedules.query.filter(Schedules.activity_subject.contains(filter_key))
+	# Redirecting to the data filling page if the schedules hadn't been created yet;
 	if schedule == []:
 		flash('There is no existing scheduling, create one now!', 'danger')
 		return(redirect(url_for('timetabling')))
+	# Retrieving data to put into the HTML table;
 	data_without_filtering = Schedules.query.all()
 	data_for_color_representation = []
 	data_for_color_representation.append(Schedules.query.filter_by(activity_algorithm='greedy'))
@@ -438,21 +460,19 @@ def schedule(category, filter_key):
 	classrooms = Classrooms.query.all()
 	groups = Groups.query.all()
 	subjects = Courses.query.all()
-
-
+	# Retrieving slots, days, periods for the HTML table;
 	slots = cs.slots()
 	day = slots[0].split(':')[0]
 	days = list(set([i.split(':')[0] for i in slots]))
 	times = [i.split(':')[1] for i in slots if day in i]
-
+	# Loading the schedules into HTML table;
 	if schedule != None:
 		schedule_for_algorithms = cs.scheduleForTable(schedule, len(slots))
-
+	# Loading algorithm data: durations, colors of vertices, ammount of colors used;
 	durations = ar.getDurations()
 	colorings = ar.getColoringResults()
 	used_colors = ar.getUsedColors(colorings)
-
-
+	# Loading the page with schedules;
 	return render_template('pages/schedule.html', 
 		schedule=schedule_for_algorithms, 
 		db_schedule=schedule, 
@@ -468,8 +488,11 @@ def schedule(category, filter_key):
 		used_colors=used_colors
 	)
 
-
+# Main function
 if __name__ == '__main__':
+	# Creating database;
 	db.create_all()
+	# Setting default workdays;
 	cs.setDays(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])
-	app.run(debug=True)
+	# Running the program
+	app.run(debug=False)
