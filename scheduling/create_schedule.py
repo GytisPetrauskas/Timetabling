@@ -8,13 +8,16 @@ from objects.schedule import Schedule as sch
 
 days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 
+# Saving the current work days set;
 def setDays(data):
 	global days
 	days = data
 
+# Retrieving current work days;
 def getDays():
 	return days
 
+# Predefining time-slots for the schedule;
 def slots():
 	days = getDays()
 	hours = [
@@ -32,6 +35,7 @@ def slots():
 			slots.append(d+':'+h)
 	return slots
 
+# Retrieving random 'q' amount of time-slots
 def getSlots(q):
 	no_of_slots = len(slots())
 	randomized_slots = []
@@ -43,7 +47,7 @@ def getSlots(q):
 	randomized_slots = sorted(randomized_slots)
 	return randomized_slots
 
-
+# Appointing activities to time-slots;
 def createSchedule(data, algo, slots_for_schedule):
 	schedule = []
 	for i in range(len(data)):
@@ -51,6 +55,7 @@ def createSchedule(data, algo, slots_for_schedule):
 			schedule.append(sch(j, slots_for_schedule[i], algo))
 	return schedule
 
+# Group schedules by algorithms;
 def scheduleForTable(schedule, slot_no):
 	algorithms = getAlgorithms(schedule)
 	dispersed_schedules = []
@@ -69,6 +74,7 @@ def scheduleForTable(schedule, slot_no):
 			dispersed_schedules[3][i.activity_time_slot].append(i)
 	return dispersed_schedules
 
+# Retrieve algorithms used for scheduling;
 def getAlgorithms(schedule):
 	algorithms = []
 	for i in schedule:
@@ -76,6 +82,7 @@ def getAlgorithms(schedule):
 			algorithms.append(i.activity_algorithm)
 	return algorithms
 
+# Depth-first search algorithm realization;
 def dfs(used, data, vertex, order):
 	if vertex not in used:
 		try:
@@ -87,9 +94,12 @@ def dfs(used, data, vertex, order):
 			order.append('*')
 	return order
 
+# Creating the schedule;
 def makeSchedule(original_data, algorithm):
 	data = copy.deepcopy(original_data)
+	# Sort time-slots by most busy to least busy;
 	data.sort(key=len, reverse=True)
+	# Ammount of time-slots available;
 	available_slots = list(range(len(slots())))
 	slot_no = len(available_slots)
 	# Find collisions
@@ -110,13 +120,13 @@ def makeSchedule(original_data, algorithm):
 							collisions[i][k] += 1
 						if data[i][j].lecturer == data[k][l].lecturer and data[i][j].faculty != data[k][l].faculty:
 							collisions[i][k] += 1
-	# Sorting collisions
+	# Sorting collisions;
 	collisions_sorted = []
 	for i in collisions.keys():
 		for j, k in collisions[i].items():
 			collisions_sorted.append(str(i)+':'+str(j)+':'+str(k))
 	collisions_sorted.sort(key=lambda x: x.split(':')[2])
-	# get only the ones with no conflicts
+	# Get activities without conflicts;
 	collisions_sorted_no_conflicts = []
 	for i in collisions_sorted:
 		if int(i.split(':')[-1]) == 0:
@@ -128,14 +138,14 @@ def makeSchedule(original_data, algorithm):
 			collis[i.split(':')[0]].append(i.split(':')[1])
 		else:
 			collis[i.split(':')[0]] = [i.split(':')[1]]
-	# get road for elements with no conflicts
+	# Get order for elements with no conflicts;
 	visited = set()
 	order = []
 	if collis != {}:
 		order = dfs(visited, collis, list(collis.keys())[0], order)
 		if order[-1] == '*':
 			del order[-1]
-	# add elements with conflicts to the current road (order)
+	# Add elements with conflicts to the current road (order);
 	total_colors = list(range(len(data)))
 	for i in total_colors:
 		if str(i) not in order:
@@ -152,7 +162,7 @@ def makeSchedule(original_data, algorithm):
 		failed = None
 		return failed, message
 	elif len(available_slots) == len(not_optimal):
-		# not enough time slots to free intervals for travelling between faculties
+		# Not enough time slots to free intervals for travelling between faculties - ignoring this constraint;
 		message = 'Travelling between faculties is not accounted for: '+algorithm+'.'
 		schedule = []
 		for i in range(len(original_data)):
@@ -160,7 +170,7 @@ def makeSchedule(original_data, algorithm):
 				schedule.append(sch(j, available_slots[i], algo))
 		return schedule, message
 	elif len(available_slots) >= len(order):
-		# normal scheduling
+		# Scheduling
 		message = 'Scheduling complete for: '+algorithm+'.'
 		space_index = []
 		for i in range(len(order)):
@@ -170,7 +180,7 @@ def makeSchedule(original_data, algorithm):
 		schedule = []
 		next_day = [i*6+6 for i in range(int(len(available_slots)/6))]
 		for i in order:
-			# if we do not need a window
+			# if we do not need a window between two activities;
 			if i != '*':
 				for j in data[int(i)]:
 					schedule.append(sch(j, available_slots[0], algorithm))
