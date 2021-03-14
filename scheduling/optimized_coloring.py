@@ -1,3 +1,6 @@
+# Optimized coloring;
+# Algorithms used: Modification of Tabu Search;
+
 import copy
 import random
 from random import randrange, randint
@@ -6,19 +9,24 @@ from collections import deque
 from datetime import datetime
 import sys
 
+# Create a copy of some list;
 def makeCopy(old):
 	new = copy.deepcopy(old)
 	return new
-	
+
+# Tabu search algorithm;
 def tabu_search(graph_, col):
 	data = makeCopy(graph_)
+	# Start counting duration;
 	duration_start = datetime.now()
+	# Initialize best coloring variable;
 	best_coloring = None
+	# Set the amount of colors to begin trying to color with;
 	if col-2 <= 1:
 		colors_needed = 2
 	else:
 		colors_needed = col-2
-	
+	# Algorithm modification;
 	while not best_coloring:
 		A = {}
 		tabu_list = []
@@ -74,5 +82,6 @@ def tabu_search(graph_, col):
 			best_coloring = 1
 		else:
 			colors_needed += 1
+	# End duration timer;
 	duration_end = datetime.now()
 	return data, duration_end-duration_start
