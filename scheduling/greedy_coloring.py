@@ -1,3 +1,6 @@
+# Greedy coloring algorithm file;
+# Algorithms used: Greedy or Welsh-Powell, Largest Saturation Degree (DSatur), Recursive Largest First (RLF);
+
 import copy
 from datetime import datetime
 from multiprocessing import Process
@@ -5,6 +8,7 @@ from multiprocessing import Pool
 from time import sleep
 import threading
 
+# Initializing variables to save durations of each algorithm;
 greedy_time = dsatur_time = rlf_time = None
 
 def greedyGraphColoring(graph):
@@ -37,7 +41,7 @@ def greedyGraphColoring(graph):
 			max_dsatur = d_satur[i].color
 		if recursive_largest_first[i].color > max_rlf:
 			max_rlf = recursive_largest_first[i].color
-	# Saving the time it took for each algorithm to run
+	# Saving the durations for each algorithm to run
 	durations['Greedy'] = str(greedy_time)
 	durations['DSatur'] = str(dsatur_time)
 	durations['RecursiveLargestFirst'] = str(rlf_time)
